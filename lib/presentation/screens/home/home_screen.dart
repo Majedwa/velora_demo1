@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/responsive_utils.dart';
+import '../../../data/models/path_model.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/paths_provider.dart';
 import '../../providers/saved_paths_provider.dart';
@@ -35,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _isLoadingPaths = true;
     });
     
-    // في تطبيق حقيقي، سنحتاج إلى انتظار تحميل البيانات عبر API
     await Future.delayed(const Duration(milliseconds: 500));
     
     setState(() {
@@ -45,19 +45,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // تهيئة أدوات الاستجابة
     ResponsiveUtils.init(context);
     
-    // الحصول على معلومات المستخدم
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
     
-    // الحصول على المسارات
     final pathsProvider = Provider.of<PathsProvider>(context);
     final featuredPaths = pathsProvider.featuredPaths;
     final suggestedPaths = pathsProvider.paths.take(3).toList();
     
-    // الحصول على المسارات المحفوظة
     final savedPathsProvider = Provider.of<SavedPathsProvider>(context);
     final savedPaths = savedPathsProvider.savedPaths.take(2).toList();
     
@@ -68,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // شريط التطبيق المخصص
             SliverAppBar(
               expandedHeight: 120,
               pinned: true,
@@ -93,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               centerTitle: false,
               actions: [
+                // زر الإشعارات
                 IconButton(
                   icon: Stack(
                     children: [
@@ -115,9 +111,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   onPressed: () {
-                    // فتح الإشعارات
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('لا توجد إشعارات جديدة'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   },
                 ),
+                // زر الإعدادات
                 IconButton(
                   icon: const Icon(
                     PhosphorIcons.gear,
@@ -184,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // شريط البحث
+            // شريط البحث والأزرار السريعة
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -193,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SearchBarWidget(),
                     const SizedBox(height: 16),
                     
-                    // شرائط اختصار سريعة
+                    // الأزرار السريعة مع وظائف عاملة
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -212,21 +214,33 @@ class _HomeScreenState extends State<HomeScreen> {
                             icon: PhosphorIcons.mountains,
                             label: 'التسلق',
                             onTap: () {
-                              // فتح مسارات التسلق
+                              context.go('/paths');
+                              Future.delayed(const Duration(milliseconds: 100), () {
+                                final pathsProvider = Provider.of<PathsProvider>(context, listen: false);
+                                pathsProvider.setActivityFilter(ActivityType.climbing);
+                              });
                             },
                           ),
                           _QuickActionChip(
                             icon: PhosphorIcons.campfire,
                             label: 'التخييم',
                             onTap: () {
-                              // فتح مسارات التخييم
+                              context.go('/paths');
+                              Future.delayed(const Duration(milliseconds: 100), () {
+                                final pathsProvider = Provider.of<PathsProvider>(context, listen: false);
+                                pathsProvider.setActivityFilter(ActivityType.camping);
+                              });
                             },
                           ),
                           _QuickActionChip(
                             icon: PhosphorIcons.tree,
                             label: 'الطبيعة',
                             onTap: () {
-                              // فتح مسارات الطبيعة
+                              context.go('/paths');
+                              Future.delayed(const Duration(milliseconds: 100), () {
+                                final pathsProvider = Provider.of<PathsProvider>(context, listen: false);
+                                pathsProvider.setActivityFilter(ActivityType.nature);
+                              });
                             },
                           ),
                         ],
@@ -317,7 +331,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // فراغ في الأسفل
             const SliverToBoxAdapter(
               child: SizedBox(height: 100),
             ),
@@ -369,7 +382,6 @@ class _QuickActionChip extends StatelessWidget {
           ],
         ),
       ),
-      
     );
   }
 }

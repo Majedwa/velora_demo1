@@ -42,46 +42,25 @@ class PathCard extends StatelessWidget {
               // صورة المسار مع تراكب تدرج اللون
               Stack(
                 children: [
-                  // تعديل في lib/presentation/screens/paths/widgets/path_card.dart
-Hero(
-  tag: 'path-image-${path.id}',
-  child: CachedNetworkImage(
-    imageUrl: path.images.isNotEmpty ? path.images[0] : 'https://placeholder.com',
-    height: isFeatured ? 180 : 160,
-    width: double.infinity,
-    fit: BoxFit.cover,
-    placeholder: (context, url) => Container(
-      color: Colors.grey[200],
-      child: Icon(
-        PhosphorIcons.image,
-        size: 48,
-        color: Colors.grey[400],
-      ),
-    ),
-    errorWidget: (context, url, error) => Container(
-      color: Colors.grey[200],
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            PhosphorIcons.image,
-            size: 48,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'لا يمكن تحميل الصورة',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ),
-  ),
-),
+                  Hero(
+                    tag: 'path-image-${path.id}',
+                    child: CachedNetworkImage(
+                      imageUrl: path.images[0],
+                      height: isFeatured ? 180 : 160,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(PhosphorIcons.image),
+                      ),
+                    ),
+                  ),
                   
                   // تراكب تدرج لتحسين قراءة النص
                   Positioned.fill(

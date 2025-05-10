@@ -1,3 +1,4 @@
+// lib/data/models/user_model.dart - Add copyWith method
 class UserModel {
   final String id;
   final String name;
@@ -47,5 +48,30 @@ class UserModel {
       'preferred_language': preferredLanguage,
       'created_at': createdAt.toIso8601String(),
     };
+  }
+
+  // إضافة copyWith method
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? profileImageUrl,
+    int? completedTrips,
+    int? savedTrips,
+    int? achievements,
+    String? preferredLanguage,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      completedTrips: completedTrips ?? this.completedTrips,
+      savedTrips: savedTrips ?? this.savedTrips,
+      achievements: achievements ?? this.achievements,
+      preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }

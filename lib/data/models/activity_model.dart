@@ -1,3 +1,4 @@
+// lib/data/models/activity_model.dart - تحديث لتحسين التصنيفات
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 
@@ -7,6 +8,7 @@ class ActivityModel {
   final String nameAr;
   final IconData icon;
   final Color color;
+  final String description;
 
   ActivityModel({
     required this.id,
@@ -14,6 +16,7 @@ class ActivityModel {
     required this.nameAr,
     required this.icon,
     required this.color,
+    required this.description,
   });
 
   static List<ActivityModel> getAllActivities() {
@@ -21,16 +24,18 @@ class ActivityModel {
       ActivityModel(
         id: 'hiking',
         name: 'Hiking',
-        nameAr: 'المشي',
+        nameAr: 'المشي لمسافات طويلة',
         icon: PhosphorIcons.person_simple_walk,
         color: Colors.green,
+        description: 'استكشف المسارات الجبلية والطبيعية سيراً على الأقدام',
       ),
       ActivityModel(
         id: 'camping',
         name: 'Camping',
         nameAr: 'التخييم',
-        icon: PhosphorIcons.campfire_light,
+        icon: PhosphorIcons.campfire,
         color: Colors.orange,
+        description: 'قضاء ليلة أو أكثر في الطبيعة مع التخييم',
       ),
       ActivityModel(
         id: 'climbing',
@@ -38,20 +43,23 @@ class ActivityModel {
         nameAr: 'التسلق',
         icon: PhosphorIcons.mountains,
         color: Colors.red,
+        description: 'تسلق الجبال والصخور للوصول إلى القمم',
       ),
       ActivityModel(
         id: 'religious',
         name: 'Religious',
-        nameAr: 'ديني',
+        nameAr: 'زيارات دينية',
         icon: PhosphorIcons.house,
         color: Colors.purple,
+        description: 'زيارة المواقع الدينية والمقدسة',
       ),
       ActivityModel(
         id: 'cultural',
         name: 'Cultural',
-        nameAr: 'ثقافي',
+        nameAr: 'ثقافية',
         icon: PhosphorIcons.buildings,
         color: Colors.blue,
+        description: 'اكتشاف التراث الثقافي والأحياء التاريخية',
       ),
       ActivityModel(
         id: 'nature',
@@ -59,13 +67,15 @@ class ActivityModel {
         nameAr: 'طبيعة',
         icon: PhosphorIcons.tree,
         color: Colors.teal,
+        description: 'استكشاف المحميات الطبيعية والبيئة',
       ),
       ActivityModel(
         id: 'archaeological',
         name: 'Archaeological',
-        nameAr: 'أثري',
-        icon: PhosphorIcons.compass,
+        nameAr: 'آثار',
+        icon: PhosphorIcons.columns,
         color: Colors.brown,
+        description: 'زيارة المواقع الأثرية والحضارات القديمة',
       ),
     ];
   }

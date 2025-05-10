@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/responsive_utils.dart';
+import '../../../core/localization/language_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/saved_paths_provider.dart';
 import '../../widgets/common/loading_indicator.dart';
+
+import 'completed_trips_sheet.dart';
+import 'edit_profile_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,7 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading = true;
     });
     
-    // في تطبيق حقيقي، سنقوم بتحديث بيانات المستخدم هنا
     await Future.delayed(const Duration(milliseconds: 300));
     
     setState(() {
@@ -81,13 +86,121 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا يمكن فتح الرابط'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  void _showAboutDialog() {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Velora',
+      applicationVersion: '1.0.0',
+      applicationIcon: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: 64,
+          height: 64,
+        ),
+      ),
+      children: [
+        const Text('تطبيق لاستكشاف المسارات السياحية في فلسطين'),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton(
+              onPressed: () => _openUrl(AppConstants.termsUrl),
+              child: const Text('شروط الاستخدام'),
+            ),
+            TextButton(
+              onPressed: () => _openUrl(AppConstants.privacyUrl),
+              child: const Text('سياسة الخصوصية'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showLanguageBottomSheet() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Consumer<LanguageProvider>(
+        builder: (context, provider, child) => Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'اختر اللغة',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const CircleAvatar(
+                  child: Text('ع'),
+                ),
+                title: const Text('العربية'),
+                trailing: provider.isArabic
+                    ? const Icon(PhosphorIcons.check, color: AppColors.primary)
+                    : null,
+                onTap: () {
+                  provider.changeLanguage('ar');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const CircleAvatar(
+                  child: Text('En'),
+                ),
+                title: const Text('English'),
+                trailing: !provider.isArabic
+                    ? const Icon(PhosphorIcons.check, color: AppColors.primary)
+                    : null,
+                onTap: () {
+                  provider.changeLanguage('en');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // تهيئة أدوات الاستجابة
     ResponsiveUtils.init(context);
     
     final userProvider = Provider.of<UserProvider>(context);
     final savedPathsProvider = Provider.of<SavedPathsProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     
     final user = userProvider.user;
     final savedPathsCount = savedPathsProvider.savedPaths.length;
@@ -104,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // شريط التطبيق مع معلومات المستخدم
+          // شريط التطبيق
           SliverAppBar(
             expandedHeight: 240,
             pinned: true,
@@ -131,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [
-                  // تصميم الخلفية
+                  // الخلفية
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
@@ -148,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   
-                  // تزيين الخلفية
+                  // الحافة المنحنية
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -165,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   
-                  // صورة المستخدم والمعلومات
+                  // معلومات المستخدم
                   Positioned(
                     bottom: 30,
                     left: 0,
@@ -212,7 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 12),
                         
-                        // اسم المستخدم
+                        // الاسم والبريد
                         Text(
                           user.name,
                           style: const TextStyle(
@@ -222,7 +335,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         
-                        // البريد الإلكتروني
                         Text(
                           user.email,
                           style: TextStyle(
@@ -285,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           
-          // قائمة عناصر الملف الشخصي
+          // قائمة الخيارات
           SliverToBoxAdapter(
             child: Container(
               margin: const EdgeInsets.all(16),
@@ -307,7 +419,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'حسابي',
                     subtitle: 'تعديل المعلومات الشخصية',
                     onTap: () {
-                      // تعديل بيانات الحساب
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (context) => const EditProfileSheet(),
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -325,7 +444,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'رحلاتي',
                     subtitle: 'المسارات التي أكملتها',
                     onTap: () {
-                      // عرض الرحلات المكتملة
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (context) => const CompletedTripsSheet(),
+                      );
                     },
                   ),
                   _buildDivider(),
@@ -342,7 +468,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           
-          // قائمة الإعدادات
+          // الإعدادات
           SliverToBoxAdapter(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -372,10 +498,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: PhosphorIcons.translate,
                     title: 'اللغة',
                     subtitle: 'تغيير لغة التطبيق',
-                    trailing: const Text('العربية'),
-                    onTap: () {
-                      // تغيير اللغة
-                    },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          languageProvider.isArabic ? 'العربية' : 'English',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Icon(
+                          PhosphorIcons.caret_right,
+                          color: AppColors.textSecondary,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                    onTap: _showLanguageBottomSheet,
                   ),
                   _buildDivider(),
                   _MenuItem(
@@ -383,18 +523,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'المساعدة والدعم',
                     subtitle: 'الأسئلة الشائعة والدعم الفني',
                     onTap: () {
-                      // صفحة المساعدة
+                      _openUrl(AppConstants.faqUrl);
                     },
                   ),
                   _buildDivider(),
                   _MenuItem(
-                    icon: PhosphorIcons.info,
-                    title: 'عن التطبيق',
-                    subtitle: 'معلومات عن Velora',
-                    onTap: () {
-                      // معلومات التطبيق
-                    },
-                  ),
+  icon: PhosphorIcons.info,
+  title: 'عن التطبيق',
+  subtitle: 'معلومات عن Velora',
+  trailing: Text(
+    'النسخة 1.0.0',
+    style: TextStyle(
+      color: AppColors.textSecondary,
+      fontSize: 14,
+    ),
+  ),
+  onTap: _showAboutDialog,
+),
                 ],
               ),
             ),
@@ -426,7 +571,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           
-          // مساحة إضافية في الأسفل
+          // مساحة إضافية
           const SliverToBoxAdapter(
             child: SizedBox(height: 100),
           ),
@@ -555,11 +700,10 @@ class _MenuItem extends StatelessWidget {
           color: AppColors.textSecondary,
         ),
       ),
-      trailing: trailing ??
-          Icon(
-            PhosphorIcons.caret_right,
-            color: AppColors.textSecondary,
-          ),
+      trailing: trailing ?? Icon(
+        PhosphorIcons.caret_right,
+        color: AppColors.textSecondary,
+      ),
       onTap: onTap,
     );
   }
