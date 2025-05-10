@@ -12,18 +12,25 @@ class ScaffoldWithNavBar extends StatelessWidget {
     required this.location,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: child,
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _calculateSelectedIndex(location),
-      ),
-      extendBody: true, // هذا يجعل المحتوى يمتد خلف شريط التنقل
-    );
-  }
+// تعديل في lib/presentation/widgets/navigation/scaffold_with_navbar.dart
+@override
+Widget build(BuildContext context) {
+  // التحقق من وجود شريط تنقل في الصفحة الحالية
+  final bool needsNavBar = !location.contains('/paths/') && 
+                           !location.contains('/profile/settings') && 
+                           !location.contains('/search');
+  
+  return Scaffold(
+    body: SafeArea(
+      child: child,
+    ),
+    // إظهار شريط التنقل فقط إذا كانت الصفحة الحالية تتطلب ذلك
+    bottomNavigationBar: needsNavBar 
+        ? BottomNavBar(currentIndex: _calculateSelectedIndex(location))
+        : null,
+    extendBody: needsNavBar,
+  );
+}
 
   int _calculateSelectedIndex(String location) {
     if (location.startsWith('/')) {

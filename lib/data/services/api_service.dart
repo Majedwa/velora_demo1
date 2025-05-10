@@ -5,8 +5,15 @@ import '../../core/constants/app_constants.dart';
 
 class ApiService {
   final String baseUrl = AppConstants.apiBaseUrl;
+  // ضبط وضع التطوير للتعامل مع البيانات المحلية بدلاً من الاتصال بالإنترنت
+  final bool _isDevelopmentMode = true; // تعيين هذا إلى true للتطوير المحلي
   
   Future<dynamic> get(String endpoint) async {
+    if (_isDevelopmentMode) {
+      // إرجاع بيانات وهمية للتطوير المحلي
+      return _getMockResponse(endpoint);
+    }
+    
     try {
       final response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
@@ -19,6 +26,11 @@ class ApiService {
   }
   
   Future<dynamic> post(String endpoint, dynamic body) async {
+    if (_isDevelopmentMode) {
+      // إرجاع بيانات وهمية للتطوير المحلي
+      return _getMockResponse(endpoint);
+    }
+    
     try {
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
@@ -32,6 +44,11 @@ class ApiService {
   }
   
   Future<dynamic> put(String endpoint, dynamic body) async {
+    if (_isDevelopmentMode) {
+      // إرجاع بيانات وهمية للتطوير المحلي
+      return _getMockResponse(endpoint);
+    }
+    
     try {
       final response = await http.put(
         Uri.parse('$baseUrl$endpoint'),
@@ -45,6 +62,11 @@ class ApiService {
   }
   
   Future<dynamic> delete(String endpoint) async {
+    if (_isDevelopmentMode) {
+      // إرجاع بيانات وهمية للتطوير المحلي
+      return _getMockResponse(endpoint);
+    }
+    
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl$endpoint'),
@@ -87,6 +109,71 @@ class ApiService {
       throw NetworkException('No internet connection');
     }
     return error;
+  }
+  
+  // إضافة طريقة لإرجاع بيانات وهمية حسب الـ endpoint
+  dynamic _getMockResponse(String endpoint) {
+    // تأخير افتراضي لمحاكاة طلب الشبكة
+    Future.delayed(const Duration(milliseconds: 300));
+    
+    // يمكن تخصيص البيانات الوهمية حسب الـ endpoint
+    if (endpoint.contains('/auth/login')) {
+      return {
+        'token': 'dummy_token_${DateTime.now().millisecondsSinceEpoch}',
+        'user': {
+          'id': 'user_1',
+          'name': 'مستخدم فيلورا',
+          'email': 'user@velora.com',
+          'profile_image_url': null,
+          'completed_trips': 5,
+          'saved_trips': 3,
+          'achievements': 2,
+          'preferred_language': 'ar',
+          'created_at': DateTime.now().toIso8601String(),
+        }
+      };
+    }
+    
+    if (endpoint.contains('/auth/register')) {
+      return {
+        'token': 'dummy_token_${DateTime.now().millisecondsSinceEpoch}',
+        'user': {
+          'id': 'user_2',
+          'name': 'مستخدم جديد',
+          'email': 'newuser@velora.com',
+          'profile_image_url': null,
+          'completed_trips': 0,
+          'saved_trips': 0,
+          'achievements': 0,
+          'preferred_language': 'ar',
+          'created_at': DateTime.now().toIso8601String(),
+        }
+      };
+    }
+    
+    if (endpoint.contains('/user/profile')) {
+      return {
+        'id': 'user_1',
+        'name': 'مستخدم فيلورا',
+        'email': 'user@velora.com',
+        'profile_image_url': null,
+        'completed_trips': 5,
+        'saved_trips': 3,
+        'achievements': 2,
+        'preferred_language': 'ar',
+        'created_at': DateTime.now().toIso8601String(),
+      };
+    }
+    
+    if (endpoint.contains('/auth/logout')) {
+      return {
+        'status': 'success',
+        'message': 'Logged out successfully'
+      };
+    }
+    
+    // إرجاع استجابة افتراضية إذا لم يتم العثور على نمط مطابق
+    return {'status': 'success', 'message': 'Mock response for $endpoint'};
   }
 }
 

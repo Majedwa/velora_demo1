@@ -28,23 +28,31 @@ class UserRepository {
     }
   }
 
-  Future<UserModel> login(String email, String password) async {
-    try {
-      final response = await _apiService.post('/auth/login', {
-        'email': email,
-        'password': password,
-      });
+  // تعديل في lib/data/repositories/user_repository.dart
+Future<UserModel> login(String email, String password) async {
+  try {
+    // للتطوير المحلي: تجاوز الاتصال بالإنترنت واستخدام بيانات وهمية
+    // final response = await _apiService.post('/auth/login', {
+    //   'email': email,
+    //   'password': password,
+    // });
+    
+    // استخدام بيانات وهمية بدلاً من الاتصال بالخادم
+    final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
+    final user = UserModel(
+      id: 'user_1',
+      name: 'مستخدم فيلورا',
+      email: email,
+      createdAt: DateTime.now(),
+    );
 
-      final token = response['token'];
-      final user = UserModel.fromJson(response['user']);
-
-      await _storageService.saveString(AppConstants.userTokenKey, token);
-      
-      return user;
-    } catch (e) {
-      throw Exception('Login failed: ${e.toString()}');
-    }
+    await _storageService.saveString(AppConstants.userTokenKey, token);
+    
+    return user;
+  } catch (e) {
+    throw Exception('Login failed: ${e.toString()}');
   }
+}
 
   Future<UserModel> register(String name, String email, String password) async {
     try {

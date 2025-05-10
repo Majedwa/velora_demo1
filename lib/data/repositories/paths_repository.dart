@@ -1,11 +1,72 @@
-// lib/data/repositories/paths_repository.dart
 import 'package:latlong2/latlong.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/path_model.dart';
 import '../services/api_service.dart';
+import '../../core/utils/image_utils.dart'; // أضف هذا الملف الجديد
 
 class PathsRepository {
   final ApiService _apiService = ApiService();
+  
+  // دالة مساعدة للتحقق من وجود الصورة
+  Future<String> _getValidImagePath(String imagePath) async {
+    try {
+      // محاولة تحميل الصورة للتحقق من وجودها
+      await rootBundle.load(imagePath);
+      return imagePath;
+    } catch (e) {
+      // إذا لم تنجح عملية التحميل، استخدم شعار التطبيق كصورة بديلة
+      print('صورة غير موجودة: $imagePath، استخدام شعار التطبيق بدلاً منها');
+      return 'assets/images/logo.png';
+    }
+  }
+  
+  // دالة لتصحيح مسار الصورة بناءً على ما هو متاح فعلياً
+  String _correctImagePath(String originalPath) {
+    final Map<String, String> availableImages = {
+      'galilee1': 'assets/images/galilee1.jpg',
+      'galilee2': 'assets/images/galilee2.jpg', 
+      'galilee3': 'assets/images/galilee3.jpg',
+      'battir1': 'assets/images/battir1.jpg',
+      'battir2': 'assets/images/battir2.jpg',
+      'battir3': 'assets/images/battir3.jpg',
+      'hebron1': 'assets/images/hebron1.jpg',
+      'hebron2': 'assets/images/hebron2.jpg',
+      'hebron3': 'assets/images/hebron3.jpg',
+      'jericho1': 'assets/images/jericho1.jpg',
+      'jericho2': 'assets/images/jericho2.jpg',
+      'jericho3': 'assets/images/jericho3.jpg',
+      'makhrour1': 'assets/images/makhrour1.jpg',
+      'makhrour2': 'assets/images/makhrour2.jpg',
+      'makhrour3': 'assets/images/makhrour3.jpg',
+      'rashayda1': 'assets/images/rashayda1.jpg',
+      'rashayda2': 'assets/images/rashayda2.jpg',
+      'rashayda3': 'assets/images/rashayda3.jpg',
+      'sebastia1': 'assets/images/sebastia1.jpg',
+      'sebastia2': 'assets/images/sebastia2.jpg',
+      'sebastia3': 'assets/images/sebastia3.jpg',
+      'ramallah1': 'assets/images/ramallah1.jpg',
+      'ramallah2': 'assets/images/ramallah2.jpg',
+      'ramallah3': 'assets/images/ramallah3.jpg',
+      'logo': 'assets/images/logo.png',
+    };
+    
+    // استخراج اسم الملف من المسار الكامل
+    String fileName = originalPath.split('/').last.split('.').first;
+    
+    // التحقق مما إذا كان الاسم موجودًا في القائمة
+    if (availableImages.containsKey(fileName)) {
+      return availableImages[fileName]!;
+    }
+    
+    // إذا لم يكن متاحًا، استخدم شعار التطبيق
+    return 'assets/images/logo.png';
+  }
+  
+  // دالة لتصحيح مجموعة من مسارات الصور
+  List<String> _correctImagePaths(List<String> originalPaths) {
+    return originalPaths.map(_correctImagePath).toList();
+  }
   
   Future<List<PathModel>> getAllPaths() async {
     // TODO: Replace with actual API call
@@ -21,8 +82,6 @@ class PathsRepository {
         locationAr: 'الجليل الأعلى، شمال فلسطين',
         images: [
           'assets/images/galilee1.jpg',
-          'assets/images/galilee2.jpg',
-          'assets/images/galilee3.jpg',
         ],
         length: 12.5,
         estimatedDuration: const Duration(hours: 4),
@@ -60,9 +119,7 @@ class PathsRepository {
         location: 'Jericho, West Bank',
         locationAr: 'أريحا، الضفة الغربية',
         images: [
-          'assets/images/wadi_qelt1.jpg',
-          'assets/images/wadi_qelt2.jpg',
-          'assets/images/wadi_qelt3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 15.0,
         estimatedDuration: const Duration(hours: 6),
@@ -104,8 +161,6 @@ class PathsRepository {
         locationAr: 'بتير، بيت لحم',
         images: [
           'assets/images/battir1.jpg',
-          'assets/images/battir2.jpg',
-          'assets/images/battir3.jpg',
         ],
         length: 8.0,
         estimatedDuration: const Duration(hours: 3),
@@ -142,8 +197,6 @@ class PathsRepository {
         locationAr: 'نابلس، الضفة الغربية',
         images: [
           'assets/images/sebastia1.jpg',
-          'assets/images/sebastia2.jpg',
-          'assets/images/sebastia3.jpg',
         ],
         length: 3.5,
         estimatedDuration: const Duration(hours: 2),
@@ -179,9 +232,7 @@ class PathsRepository {
         location: 'Bethlehem, West Bank',
         locationAr: 'بيت لحم، الضفة الغربية',
         images: [
-          'assets/images/mar_saba1.jpg',
-          'assets/images/mar_saba2.jpg',
-          'assets/images/mar_saba3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 10.0,
         estimatedDuration: const Duration(hours: 4),
@@ -220,8 +271,6 @@ class PathsRepository {
         locationAr: 'أريحا، الضفة الغربية',
         images: [
           'assets/images/jericho1.jpg',
-          'assets/images/jericho2.jpg',
-          'assets/images/jericho3.jpg',
         ],
         length: 5.0,
         estimatedDuration: const Duration(hours: 2, minutes: 30),
@@ -258,8 +307,6 @@ class PathsRepository {
         locationAr: 'بيت لحم، الضفة الغربية',
         images: [
           'assets/images/makhrour1.jpg',
-          'assets/images/makhrour2.jpg',
-          'assets/images/makhrour3.jpg',
         ],
         length: 7.5,
         estimatedDuration: const Duration(hours: 3),
@@ -295,9 +342,7 @@ class PathsRepository {
         location: 'Northern Jordan Valley',
         locationAr: 'شمال وادي الأردن',
         images: [
-          'assets/images/umm_qais1.jpg',
-          'assets/images/umm_qais2.jpg',
-          'assets/images/umm_qais3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 4.0,
         estimatedDuration: const Duration(hours: 2),
@@ -334,8 +379,6 @@ class PathsRepository {
         locationAr: 'منطقة البحر الميت، الضفة الغربية',
         images: [
           'assets/images/rashayda1.jpg',
-          'assets/images/rashayda2.jpg',
-          'assets/images/rashayda3.jpg',
         ],
         length: 6.0,
         estimatedDuration: const Duration(hours: 20), // Overnight
@@ -374,8 +417,6 @@ class PathsRepository {
         locationAr: 'الخليل، الضفة الغربية',
         images: [
           'assets/images/hebron1.jpg',
-          'assets/images/hebron2.jpg',
-          'assets/images/hebron3.jpg',
         ],
         length: 3.0,
         estimatedDuration: const Duration(hours: 3),
@@ -410,9 +451,7 @@ class PathsRepository {
         location: 'Gaza City, Gaza Strip',
         locationAr: 'مدينة غزة، قطاع غزة',
         images: [
-          'assets/images/gaza1.jpg',
-          'assets/images/gaza2.jpg',
-          'assets/images/gaza3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 5.0,
         estimatedDuration: const Duration(hours: 2),
@@ -447,9 +486,7 @@ class PathsRepository {
         location: 'Dead Sea, West Bank',
         locationAr: 'البحر الميت، الضفة الغربية',
         images: [
-          'assets/images/dead_sea1.jpg',
-          'assets/images/dead_sea2.jpg',
-          'assets/images/dead_sea3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 1.0,
         estimatedDuration: const Duration(hours: 3),
@@ -477,8 +514,7 @@ class PathsRepository {
           'حار للغاية في أشهر الصيف',
           'أحضر ماء عذب للشطف بعد السباحة',
         ],
-      ),
-      PathModel(
+      ),PathModel(
         id: '13',
         name: 'Mount Gerizim Samaritan Trail',
         nameAr: 'مسار جبل جرزيم السامري',
@@ -487,9 +523,7 @@ class PathsRepository {
         location: 'Nablus, West Bank',
         locationAr: 'نابلس، الضفة الغربية',
         images: [
-          'assets/imagesgerizim1.jpg',
-          'assets/images/gerizim2.jpg',
-          'assets/images/gerizim3.jpg',
+          'assets/images/logo.png', // تصحيح خطأ الكتابة في المسار الأصلي
         ],
         length: 6.0,
         estimatedDuration: const Duration(hours: 3),
@@ -525,9 +559,7 @@ class PathsRepository {
         location: 'Bethlehem, West Bank',
         locationAr: 'بيت لحم، الضفة الغربية',
         images: [
-          'assets/images/tent_nations1.jpg',
-          'assets/images/tent_nations2.jpg',
-          'assets/images/tent_nations3.jpg',
+          'assets/images/logo.png', // استخدام صورة الشعار كبديل
         ],
         length: 3.0,
         estimatedDuration: const Duration(hours: 4),
@@ -564,8 +596,6 @@ class PathsRepository {
         locationAr: 'رام الله، الضفة الغربية',
         images: [
           'assets/images/ramallah1.jpg',
-          'assets/images/ramallah2.jpg',
-          'assets/images/ramallah3.jpg',
         ],
         length: 4.0,
         estimatedDuration: const Duration(hours: 5),
@@ -624,4 +654,3 @@ class PathsRepository {
     }).toList();
   }
 }
-        
